@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 
 
-
 @Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -184,7 +183,7 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<List<ProductWrapper>> getByCategory(Integer id) {
         try {
             return new ResponseEntity<>(productDao.getProductByCategory(id), HttpStatus.OK);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -77,7 +77,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Claims claims = Jwts.parser().setSigningKey("MasabDad786").parseClaimsJws(token).getBody();
                 return claims.get("role", String.class);
             } catch (Exception e) {
-                
+
                 e.printStackTrace();
             }
         }
