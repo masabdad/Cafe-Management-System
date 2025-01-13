@@ -15,13 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 import javax.sound.sampled.Port;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 
 @Slf4j
@@ -184,7 +183,7 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<List<ProductWrapper>> getByCategory(Integer id) {
         try {
             return new ResponseEntity<>(productDao.getProductByCategory(id), HttpStatus.OK);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);

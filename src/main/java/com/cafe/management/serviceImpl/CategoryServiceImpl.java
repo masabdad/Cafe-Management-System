@@ -7,6 +7,7 @@ import com.cafe.management.constants.CafeConstants;
 import com.cafe.management.service.CategoryService;
 import com.cafe.management.utils.CafeUtils;
 import com.google.common.base.Strings;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.IntroductionAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-
+@Data
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
     CategoryDao categoryDao;

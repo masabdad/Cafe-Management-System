@@ -1,25 +1,30 @@
 package com.cafe.management.POJO;
 
 
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 @NamedQuery(name = "Bill.getAllBills", query = "select  b from Bill b order by b.id desc")
 
 @NamedQuery(name = "Bill.getBillByUserName", query = "select b from Bill b where b.createdBy=:username order by b.id desc")
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 @Entity
 @DynamicInsert
 @DynamicUpdate
 @Table(name = "bill")
 public class Bill implements Serializable {
-    private static final long serialVersionUID = 1L;
 
+
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,7 +35,6 @@ public class Bill implements Serializable {
 
     @Column(name = "name")
     private String name;
-
 
     @Column(name = "email")
     private String email;
@@ -49,10 +53,7 @@ public class Bill implements Serializable {
     @Column(name = "total")
     private Integer total;
 
-
-
     @Column(name = "createdby")
     private String createdBy;
-
 
 }

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.w3c.dom.ls.LSInput;
 
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import java.util.List;
 
 @Service
@@ -46,18 +46,33 @@ public class EmailUtils {
         return cc;
     }
 
-    public void forgotMail(String to, String subject, String password) throws MessagingException {
+    public void forgotMail(String to, String subject, String password) {
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        MimeMessage message = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setFrom("masabmughal8@gmail.com");
-        helper.setTo(to);
-        helper.setSubject(subject);
-        String htmlMsg = "<p><b> Your Login detail for Cafe Management System</b><br><b>Email: </b> " + to + " <br><b>Password: </b>  " + password + " <br><a href =\"http://localhost:4200/\"> Click here to login</a></p>";
-        message.setContent(htmlMsg, "text/html");
-        emailSender.send(message);
+            // Set email details
+            helper.setFrom("masabmughal8@gmail.com");
+            helper.setTo(to);
+            helper.setSubject(subject);
 
+            // Email content
+            String htmlMsg = """
+            <p><b>Your Login Details for Cafe Management System</b></p>
+            <p><b>Email:</b> %s</p>
+            <p><b>Password:</b> %s</p>
+            <p><a href="http://localhost:4200/">Click here to login</a></p>
+        """.formatted(to, password);
 
+            helper.setText(htmlMsg, true);
+
+            // Send the email
+            emailSender.send(message);
+        } catch (Exception e) {
+            // Log the error and rethrow as a runtime exception
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
+
 
 }

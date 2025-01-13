@@ -1,12 +1,10 @@
 package com.cafe.management.utils;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.description.method.MethodDescription;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.context.expression.MapAccessor;
@@ -45,13 +43,16 @@ public class CafeUtils {
         return jsonArray;
     }
 
-    public static Map<String, Object> getMapFromJson(String data){
-        if (!Strings.isNullOrEmpty(data))
-            return new Gson().fromJson(data, new TypeToken<Map<String, Object>>(){
-
-            }.getType());
+    public static Map<String, Object> getMapFromJson(String data) {
+        if (!Strings.isNullOrEmpty(data)) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.readValue(data, new TypeReference<Map<String, Object>>(){});
+            } catch (Exception e) {
+                e.printStackTrace(); // Handle the exception or log it as needed
+            }
+        }
         return new HashMap<>();
-
     }
     public static Boolean isFileExist(String path){
         log.info("Inside isFileExist{}",path);

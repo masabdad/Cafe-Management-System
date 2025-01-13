@@ -1,7 +1,6 @@
 package com.cafe.management.restImpl;
 
 import com.cafe.management.POJO.Analysis.Analysis1;
-import com.cafe.management.POJO.Analysis.Analysis2;
 import com.cafe.management.POJO.Bill;
 import com.cafe.management.constants.CafeConstants;
 import com.cafe.management.rest.BillRest;
@@ -87,7 +86,7 @@ public class BillRestImpl implements BillRest {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping("/getProductSaleAll")
+   /* @GetMapping("/getProductSaleAll")
     public ResponseEntity<List<Analysis2>> getProductSaleAll() {
         try {
             return billService.getProductSaleAll();
@@ -106,7 +105,7 @@ public class BillRestImpl implements BillRest {
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+*/
     @PostMapping("/autoPrintPdf")
     public ResponseEntity<String> printPdf(@RequestParam String uuid) {
         return billService.autoPrintPdf(uuid);

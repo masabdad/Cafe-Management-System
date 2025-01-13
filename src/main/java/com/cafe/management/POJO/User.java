@@ -3,29 +3,30 @@ package com.cafe.management.POJO;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.NamedQuery;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+@NamedQuery(name = "User.findByEmailId", query = "select u from User u where u.email = :email")
 
-@NamedQuery(name = "User.findByEmailId",query = "select u from User u where u.email=:email")
-
-@NamedQuery(name = "User.getAllUser", query = "select new com.cafe.management.wrapper.UserWrapper(u.id,u.name,u.email,u.contactNumber,u.status)from User u where u.role = 'user'")
-
+@NamedQuery(name = "User.getAllUser", query = "select new com.cafe.management.wrapper.UserWrapper(u.id, u.name, u.email, u.contactNumber, u.status) from User u where u.role = 'user'")
 
 @NamedQuery(name = "User.getAllAdmin", query = "select u.email from User u where u.role = 'admin'")
 
+@NamedQuery(name = "User.updateStatus", query = "update User u set u.status = :status where u.id = :id")
 
-@NamedQuery(name = "User.update.Status" , query = "update User u set u.status=:status where u.id=:id")
-@NamedQuery(name = "User.getAllEmployee", query = "select new com.cafe.management.wrapper.UserWrapper(u.id,u.name,u.email,u.contactNumber,u.status) from User u where u.role ='Employee'")
+@NamedQuery(name = "User.getAllEmployee", query = "select new com.cafe.management.wrapper.UserWrapper(u.id, u.name, u.email, u.contactNumber, u.status) from User u where u.role = 'Employee'")
 
 
 @Entity
-@Data
+@Builder
+@Getter
+@Setter
 @Table(name = "user")
 @NoArgsConstructor
 @DynamicInsert
@@ -72,11 +73,6 @@ public class User implements Serializable {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role)); // Assuming roles are prefixed with "ROLE_"
         return authorities;
     }
-
-    public String getAuthority() {
-        return role;
-    }
-
 
 
 }

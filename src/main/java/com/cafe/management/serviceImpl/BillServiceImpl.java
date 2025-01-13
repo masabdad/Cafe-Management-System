@@ -3,7 +3,6 @@ package com.cafe.management.serviceImpl;
 import com.cafe.management.DAO.BillDao;
 import com.cafe.management.JWT.JwtFilter;
 import com.cafe.management.POJO.Analysis.Analysis1;
-import com.cafe.management.POJO.Analysis.Analysis2;
 import com.cafe.management.POJO.Bill;
 import com.cafe.management.constants.CafeConstants;
 import com.cafe.management.service.BillService;
@@ -12,7 +11,10 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
@@ -37,9 +39,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Service
 @Slf4j
 @Data
-@Service
 public class BillServiceImpl implements BillService {
 
     @Autowired
@@ -48,10 +54,8 @@ public class BillServiceImpl implements BillService {
     BillDao billDao;
 
 
-
     @Override
     public ResponseEntity<String> generateBill(Map<String, Object> requestMap) {
-        log.info("Inside generateBill");
         try {
             String fileName;
             if (validateRequestMap(requestMap)) {
@@ -64,7 +68,7 @@ public class BillServiceImpl implements BillService {
                 }
 
                 String data = "Name:" + requestMap.get("name") + "\n" + "contactNumber:" + requestMap.get("contactNumber") +
-                        "\n" + "Email:" + requestMap.get("email") + "\n" + ("PaymentMethod:") + requestMap.get("paymentMethod")+
+                        "\n" + "Email:" + requestMap.get("email") + "\n" + ("PaymentMethod:") + requestMap.get("paymentMethod") +
                         "\n" + ("DeliveryAddress:") + requestMap.get("deliveryAddress");
 
                 Document document = new Document();
@@ -155,7 +159,6 @@ public class BillServiceImpl implements BillService {
     }
 
     private void setRectangleInPdf(Document document) throws DocumentException {
-        log.info("Inside setRectangleInPdf");
         Rectangle rec = new Rectangle(577, 825, 18, 15);
         rec.enableBorderSide(1);
         rec.enableBorderSide(2);
@@ -217,14 +220,13 @@ public class BillServiceImpl implements BillService {
             if (!requestMap.containsKey("uuid") && validateRequestMap(requestMap))
                 return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
             String filePath = CafeConstants.STORE_LOCATION + "\\" + (String) requestMap.get("uuid") + ".pdf";
-            if (CafeUtils.isFileExist(filePath)){
-                byteArray= getByteArray (filePath);
+            if (CafeUtils.isFileExist(filePath)) {
+                byteArray = getByteArray(filePath);
                 return new ResponseEntity<>(byteArray, HttpStatus.OK);
-            }
-            else {
+            } else {
                 requestMap.put("isGenerate", false);
                 generateBill(requestMap);
-                byteArray= getByteArray(filePath);
+                byteArray = getByteArray(filePath);
                 return new ResponseEntity<>(byteArray, HttpStatus.OK);
             }
 
@@ -236,27 +238,27 @@ public class BillServiceImpl implements BillService {
     }
 
 
-
-    private byte[] getByteArray(String filePath) throws  Exception{
+    private byte[] getByteArray(String filePath) throws Exception {
         File initialFile = new File(filePath);
-        InputStream targetStream= new FileInputStream(initialFile);
-        byte[] byteArray= IOUtils.toByteArray(targetStream);
+        InputStream targetStream = new FileInputStream(initialFile);
+        byte[] byteArray = IOUtils.toByteArray(targetStream);
         targetStream.close();
         return byteArray;
 
     }
+
     @Override
     public ResponseEntity<String> deleteBill(Integer id) {
         try {
             Optional optional = billDao.findById(id);
-            if (!optional.isEmpty()){
+            if (!optional.isEmpty()) {
                 billDao.deleteById(id);
                 return CafeUtils.getResponseEntity("Bill deleted Successfully.", HttpStatus.OK);
 
-            }else {
-                return  CafeUtils.getResponseEntity("Bill ID does not exist", HttpStatus.OK);
+            } else {
+                return CafeUtils.getResponseEntity("Bill ID does not exist", HttpStatus.OK);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -291,36 +293,6 @@ public class BillServiceImpl implements BillService {
 
     }
 
-    @Override
-    public ResponseEntity<List<Analysis2>> getProductSaleAll() {
-        try {
-            if (jwtFilter.isAdmin()) {
-                List<Analysis2> result = billDao.getProductSaleAllAsAnalysis2();
-                return new ResponseEntity<>(result, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
-
-    }
-
-    @Override
-    public ResponseEntity<List<Analysis2>> getCategorySaleAll() {
-        try {
-            if (jwtFilter.isAdmin()) {
-                List<Analysis2> result = billDao.getCategorySaleAllAsAnalysis2();
-                return new ResponseEntity<>(result, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
     @Override
     public ResponseEntity<String> autoPrintPdf(String filePath) {

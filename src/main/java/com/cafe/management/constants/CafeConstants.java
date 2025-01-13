@@ -11,5 +11,5 @@ public class CafeConstants {
     public static final String STORE_LOCATION= "C:\\Masab dad";
 
 
-    public static final String EMAIL_ALREADY_EXSIST = "Email Not Found";
+    public static final String EMAIL_ALREADY_EXIST = "Email Not Found";
 }

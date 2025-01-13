@@ -6,6 +6,7 @@ import com.cafe.management.JWT.JwtFilter;
 import com.cafe.management.POJO.Reservation;
 import com.cafe.management.constants.CafeConstants;
 import com.cafe.management.utils.CafeUtils;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@Data
 public class ReservationService {
     @Autowired
     private ReservationDao reservationDao;
@@ -43,14 +45,6 @@ public class ReservationService {
                 if (requestedStartTime.isBefore(existingEndTime) && requestedEndTime.isAfter(existingStartTime)) {
                     return CafeUtils.getResponseEntity("Table is not available within 30 minutes of the previous reservation.", HttpStatus.BAD_REQUEST);
                 }
-            }
-
-            int totalReservedCapacity = existingReservations.stream()
-                    .mapToInt(existingReservation -> existingReservation.getNumberOfPeople())
-                    .sum();
-            int remainingCapacity = tableCapacity - totalReservedCapacity;
-            if (reservation.getNumberOfPeople() > remainingCapacity) {
-                return CafeUtils.getResponseEntity("Table does not have enough space for this reservation.", HttpStatus.BAD_REQUEST);
             }
 
             reservation.setStatus("RESERVED");

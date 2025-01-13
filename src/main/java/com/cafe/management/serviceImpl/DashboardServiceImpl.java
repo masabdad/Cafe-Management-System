@@ -1,6 +1,5 @@
 package com.cafe.management.serviceImpl;
 
-import com.cafe.management.DAO.BillDao;
 import com.cafe.management.DAO.CategoryDao;
 import com.cafe.management.DAO.ProductDao;
 import com.cafe.management.rest.DashboardRest;
@@ -23,8 +22,8 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     ProductDao productDao;
 
-    @Autowired
-    BillDao billDao;
+//    @Autowired
+//    BillDao billDao;
 
 
     @Override
@@ -33,7 +32,7 @@ public class DashboardServiceImpl implements DashboardService {
         Map<String, Object> map = new HashMap<>();
         map.put("category", categoryDao.count());
         map.put("product", productDao.count());
-        map.put("bill", billDao.count());
+//        map.put("bill", billDao.count());
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 }

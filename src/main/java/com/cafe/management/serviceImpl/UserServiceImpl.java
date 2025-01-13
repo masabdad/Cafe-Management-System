@@ -20,9 +20,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.*;
 
 @Service
@@ -46,9 +46,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     EmailUtils emailUtils;
+
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         try {
-            log.info("Inside Signup {}", requestMap);
 
             if (validateSignUp(requestMap)) {
                 String email = requestMap.get("email");
@@ -79,14 +79,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
     private static String generateVerificationCode() {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
     }
-
 
 
     private boolean validateSignUp(Map<String, String> requestMap) {
@@ -96,7 +93,6 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-
 
 
     private User getUserFromMap(Map<String, String> requestMap, String verificationCode) {
@@ -117,7 +113,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> login(Map<String, String> requestMap) {
 
-        log.info("Inside login");
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
@@ -135,7 +130,6 @@ public class UserServiceImpl implements UserService {
             }
 
         } catch (Exception ex) {
-            log.error("{}", ex);
 
         }
         return new ResponseEntity<String>("{\"message\":\"" + "Incorrect Email or passwword." + "\"}",
@@ -147,7 +141,7 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<String> update(Map<String, String> requestMap) {
         try {
 
-           {
+            {
                 Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
                 if (!optional.isEmpty()) {
                     userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
@@ -211,31 +205,26 @@ public class UserServiceImpl implements UserService {
             User user = userDao.findByEmail(requestMap.get("email"));
             if (!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail()))
                 emailUtils.forgotMail(user.getEmail(), "Credentials by Cafe Management System", user.getPassword());
-
-
             return CafeUtils.getResponseEntity("Check Your Mail", HttpStatus.OK);
-
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public ResponseEntity<List<UserWrapper>> getAllUser() {
-        try{
-            if (jwtFilter.isAdmin()){
-                return new ResponseEntity<>(userDao.getAllUser(),HttpStatus.OK);
+        try {
+            if (jwtFilter.isAdmin()) {
+                return new ResponseEntity<>(userDao.getAllUser(), HttpStatus.OK);
 
             }
-            return new ResponseEntity<>(new ArrayList<>(),HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new  ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -248,10 +237,10 @@ public class UserServiceImpl implements UserService {
                         userDao.save(getEmployeeFromMap(requestMap));
                         return CafeUtils.getResponseEntity("Employee Added Successfully", HttpStatus.OK);
                     } else {
-                        return CafeUtils.getResponseEntity("Employee Already Exists",HttpStatus.BAD_REQUEST);
+                        return CafeUtils.getResponseEntity("Employee Already Exists", HttpStatus.BAD_REQUEST);
                     }
                 } else {
-                    return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA,HttpStatus.BAD_REQUEST);
+                    return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
                 }
             } else {
                 return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
@@ -286,37 +275,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> deleteEmployee(int id) {
         try {
-            if (jwtFilter.isAdmin()){
+            if (jwtFilter.isAdmin()) {
                 User user = userDao.findById(id).get();
-                if (Objects.isNull(user)){
-                    return CafeUtils.getResponseEntity("Employee not Found on Given ID",HttpStatus.NOT_FOUND);
+                if (Objects.isNull(user)) {
+                    return CafeUtils.getResponseEntity("Employee not Found on Given ID", HttpStatus.NOT_FOUND);
                 } else {
                     userDao.deleteById(id);
-                    return CafeUtils.getResponseEntity("Employee Deleted Successfully",HttpStatus.OK);
+                    return CafeUtils.getResponseEntity("Employee Deleted Successfully", HttpStatus.OK);
                 }
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS,HttpStatus.UNAUTHORIZED);
+                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public ResponseEntity<List<UserWrapper>> getAllEmployee() {
-            try {
-                if (jwtFilter.isAdmin()) {
-                    List<UserWrapper> result = userDao.getAllEmployee();
-                    return new ResponseEntity<>(result, HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        try {
+            if (jwtFilter.isAdmin()) {
+                List<UserWrapper> result = userDao.getAllEmployee();
+                return new ResponseEntity<>(result, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
             }
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @Override
     public ResponseEntity<String> getRole() {
@@ -451,7 +440,6 @@ public class UserServiceImpl implements UserService {
         }
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
 
 }

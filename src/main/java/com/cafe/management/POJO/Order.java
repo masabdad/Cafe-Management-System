@@ -1,13 +1,17 @@
 package com.cafe.management.POJO;
 
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 @DynamicInsert
 @DynamicUpdate
 @Table(name = "details_order")
@@ -35,5 +39,4 @@ public class Order implements Serializable {
 
     @Column(name = "quantity")
     private Integer quantity;
-
 }
