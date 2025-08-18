@@ -8,11 +8,11 @@
 		<relativePath/>
 		<!--  lookup parent from repository  -->
 	</parent>
-	<groupId>com.cafe.management</groupId>
-	<artifactId>Cafe-Management-System</artifactId>
+	<groupId>com.mest.tech</groupId>
+	<artifactId>Mest-Tech</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Cafe-Management-System</name>
-	<description>This project is for Cafe management system</description>
+	<name>Mest-Tech</name>
+	<description>This project is for Mest Tech</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
