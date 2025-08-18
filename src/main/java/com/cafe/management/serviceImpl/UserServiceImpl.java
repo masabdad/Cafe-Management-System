@@ -49,7 +49,6 @@ public class UserServiceImpl implements UserService {
 
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         try {
-
             if (validateSignUp(requestMap)) {
                 String email = requestMap.get("email");
                 User user = userDao.findByEmailId(email);
@@ -59,8 +58,8 @@ public class UserServiceImpl implements UserService {
 
                 if (user == null) {
                     newUser = getUserFromMap(requestMap, verificationCode);
-                    newUser.setStatus("false");
-                } else if (user.getStatus().equals("false")) {
+                    newUser.setStatus("pending_verification"); // New status to track verification state
+                } else if (user.getStatus().equals("pending_verification")) {
                     newUser = user;
                     newUser.setVerificationCode(verificationCode);
                 } else {
@@ -69,13 +68,14 @@ public class UserServiceImpl implements UserService {
 
                 userDao.save(newUser);
                 sendVerificationCodeEmail(email, verificationCode);
+                return CafeUtils.getResponseEntity("Signup Successful. Please verify your email with the verification code.", HttpStatus.OK);
             } else {
                 return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return CafeUtils.getResponseEntity("Signup Successful. Verification code sent to your email.", HttpStatus.OK);
     }
 
 
@@ -101,9 +101,18 @@ public class UserServiceImpl implements UserService {
         user.setContactNumber(requestMap.get("contactNumber"));
         user.setEmail(requestMap.get("email"));
         user.setPassword(requestMap.get("password"));
-        user.setStatus("false");
-        user.setRole("user");
-        user.setVerificationCode(verificationCode);
+
+        // Check if role is specified in requestMap, otherwise default to "user"
+        String role = requestMap.getOrDefault("role", "user");
+        user.setRole(role);
+
+        // Set status based on role
+        if ("admin".equals(role)) {
+            user.setStatus("true");  // Admin accounts are auto-activated
+        } else {
+            user.setStatus("pending_verification");
+            user.setVerificationCode(verificationCode);
+        }
 
         return user;
 
@@ -384,24 +393,31 @@ public class UserServiceImpl implements UserService {
         sendVerificationCodeEmail(email, verificationCode);
     }
 
-    public ResponseEntity<String> verifyVerificationCode(Map<String, String> requestMap) {
+    public ResponseEntity<String> verifyVerificationCode(String verificationCode) {
         try {
-            String email = requestMap.get("email");
-            String providedVerificationCode = requestMap.get("verificationCode");
+            User user = userDao.findByVerificationCode(verificationCode);
 
-            User user = userDao.findByEmailId(email);
-            if (user != null && user.getVerificationCode().equals(providedVerificationCode)) {
+            if (user != null && user.getStatus().equals("pending_verification")) {
+                // Update user status to active
                 user.setStatus("true");
                 userDao.save(user);
 
-                return CafeUtils.getResponseEntity("Verification code matched. Registration completed successfully.", HttpStatus.OK);
+                // Send welcome message
+                emailUtils.sendSimpleMessage(
+                        user.getEmail(),
+                        "Welcome to Cafe Management System",
+                        "Dear " + user.getName() + ",\n\nYour account has been successfully verified. You can now log in to your account.",
+                        Arrays.asList(user.getEmail())
+                );
+
+                return CafeUtils.getResponseEntity("Account verified successfully. You can now log in.", HttpStatus.OK);
             } else {
-                return CafeUtils.getResponseEntity("Invalid verification code. Registration failed.", HttpStatus.BAD_REQUEST);
+                return CafeUtils.getResponseEntity("Invalid or expired verification code.", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -446,6 +462,34 @@ public class UserServiceImpl implements UserService {
         return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> registerAdmin(Map<String, String> requestMap) {
+        try {
+            if (jwtFilter.isAdmin()) {  // Only existing admin can create new admin
+                if (validateSignUp(requestMap)) {
+                    User user = userDao.findByEmailId(requestMap.get("email"));
+                    if (user == null) {
+                        requestMap.put("role", "admin");  // Set role as admin
+                        requestMap.put("status", "true"); // Admin accounts are auto-activated
+                        User newAdmin = getUserFromMap(requestMap, null);
+                        userDao.save(newAdmin);
+
+                        // Notify other admins about new admin creation
+                        sendMailToAllAdmin("true", newAdmin.getEmail(), userDao.getAllAdmin());
+
+                        return CafeUtils.getResponseEntity("Admin registered successfully", HttpStatus.OK);
+                    } else {
+                        return CafeUtils.getResponseEntity("Email already exists", HttpStatus.BAD_REQUEST);
+                    }
+                }
+                return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+            }
+            return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
 

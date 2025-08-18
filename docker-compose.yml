@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8090:8090"
+      - "51835:22"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/cafe_management
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - cafe-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=cafe_management
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - cafe-network
+
+volumes:
+  mysql-data:
+
+networks:
+  cafe-network:
+    driver: bridge

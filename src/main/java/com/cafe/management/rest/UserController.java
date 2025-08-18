@@ -34,17 +34,12 @@ public interface UserController {
     @GetMapping(path = "/getRole")
     ResponseEntity<String> getRole();
 
-    @PostMapping("/verifyCode")
-    ResponseEntity<String> verifyVerificationCode(@RequestBody Map<String, String> requestMap);
-
     @GetMapping("/getByEmail")
     ResponseEntity<String> getUserByEmail(@RequestBody Map<String, String> requestMap);
 
     @PostMapping("/update-email-contact/{id}")
     ResponseEntity<String> updateEmailContact(@PathVariable int id, @RequestBody Map<String, String> requestMap);
 
-
-
-
-
+    @PostMapping("/verify")
+    ResponseEntity<String> verifyAccount(@RequestParam String verificationCode);
 }

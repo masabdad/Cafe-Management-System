@@ -35,10 +35,12 @@ public interface UserService {
 
     ResponseEntity<String> updateEmployeeStatus(int id, String newStatus);
 
-    ResponseEntity<String> verifyVerificationCode(Map<String, String> requestMap);
+    ResponseEntity<String> verifyVerificationCode(String verificationCode);
 
     ResponseEntity<String> getUserByEmail(Map<String, String> requestMap);
 
 
     ResponseEntity<String> updateEmailContact(int id, Map<String, String> requestMap);
+
+    ResponseEntity<String> registerAdmin(Map<String, String> requestMap);
 }
